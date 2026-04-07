@@ -1,0 +1,416 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../../../config/routes_manager/routes.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../models/employee_model.dart';
+import '../../../../view_model/admin_cubit.dart';
+
+class EmployeesScreen extends StatefulWidget {
+  const EmployeesScreen({super.key});
+
+  @override
+  State<EmployeesScreen> createState() => _EmployeesScreenState();
+}
+
+class _EmployeesScreenState extends State<EmployeesScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedDepartment = 'All Depts';
+  String _searchQuery = '';
+
+  List<Employee> get _employees {
+    return AdminCubit.get(context).realAttendanceRecords.map((e) => e.employee).toList();
+  }
+
+  List<String> get departments {
+    Set<String> depts = {'All Depts'};
+    for (var emp in _employees) {
+      if (emp.department.isNotEmpty && emp.department.toLowerCase() != 'unknown') {
+        depts.add(emp.department);
+      }
+    }
+    return depts.toList();
+  }
+
+  final List<String> _statuses = ['Any Status', 'Active', 'On Break', 'Inactive'];
+
+  List<Employee> get _filteredEmployees {
+    return _employees.where((employee) {
+      // Search filter
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        if (!employee.name.toLowerCase().contains(query) &&
+            !employee.role.toLowerCase().contains(query) &&
+            !employee.id.toLowerCase().contains(query)) {
+          return false;
+        }
+      }
+
+      // Department filter
+      if (_selectedDepartment != 'All Depts' &&
+          employee.department != _selectedDepartment) {
+
+        return false;
+      }
+
+      // Status filter
+
+
+      return true;
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AdminCubit, AdminState>(
+      builder: (context, state) {
+        return Scaffold(
+          floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              Navigator.pushNamed(context, Routes.addEmployee);
+            },
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: Text(
+              'Add Employee',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white),
+            ),
+          ),
+      appBar: AppBar(
+        centerTitle: false,
+        // scrolledUnderElevation: 0,
+        title: Column(
+          children: [
+            Text(
+              'Employees',
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Manage your team',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header Section
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    // Search Bar
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).dividerColor.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Search name, role, or ID...',
+                          hintStyle: GoogleFonts.poppins(
+                            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.5),
+                            fontSize: 14,
+                          ),
+                          prefixIcon: Icon(Icons.search, color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.5)),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Filters Section
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                color: Theme.of(context).cardColor,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Department Filter
+                    Text(
+                      'DEPARTMENT',
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    SizedBox(
+                      height: 36,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: departments.length,
+                        itemBuilder: (context, index) {
+                          final dept = departments[index];
+                          final isSelected = _selectedDepartment == dept;
+                          return Padding(
+                            padding: EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(dept),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  _selectedDepartment = dept;
+                                });
+                              },
+                                backgroundColor: Theme.of(context).cardColor,
+                              selectedColor: Theme.of(context).colorScheme.primary,
+                              labelStyle: GoogleFonts.poppins(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
+                              ),
+                              side: BorderSide(
+                                color: isSelected
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).dividerColor.withOpacity(0.2),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 16),
+
+
+                    // Status Filter
+                    // Text(
+                    //   'STATUS',
+                    //   style: GoogleFonts.poppins(
+                    //     fontSize: 11,
+                    //     fontWeight: FontWeight.w600,
+                    //     color: Color(0xff6B7280),
+                    //     letterSpacing: 0.5,
+                    //   ),
+                    // ),
+                    // SizedBox(height: 8),
+                    // SizedBox(
+                    //   height: 36,
+                    //   child: ListView.builder(
+                    //     scrollDirection: Axis.horizontal,
+                    //     itemCount: _statuses.length,
+                    //     itemBuilder: (context, index) {
+                    //       final status = _statuses[index];
+                    //       final isSelected = _selectedStatus == status;
+                    //       return Padding(
+                    //         padding: EdgeInsets.only(right: 8),
+                    //         child: FilterChip(
+                    //           label: Text(status),
+                    //           selected: isSelected,
+                    //           onSelected: (selected) {
+                    //             setState(() {
+                    //               _selectedStatus = status;
+                    //             });
+                    //           },
+                    //           backgroundColor: Colors.white,
+                    //           selectedColor: AppGradients.checkIn[0],
+                    //           labelStyle: GoogleFonts.poppins(
+                    //             fontSize: 13,
+                    //             fontWeight: FontWeight.w500,
+                    //             color: isSelected ? Colors.white : Color(0xff374151),
+                    //           ),
+                    //           side: BorderSide(
+                    //             color: isSelected
+                    //                 ? AppGradients.checkIn[0]
+                    //                 : Color(0xffE5E7EB),
+                    //           ),
+                    //           shape: RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(20),
+                    //           ),
+                    //         ),
+                    //       );
+                    //     },
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ),
+
+              // Employee List
+              ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.all(20),
+                itemCount: _filteredEmployees.length,
+                itemBuilder: (context, index) {
+                  final employee = _filteredEmployees[index];
+                  return _EmployeeCard(employee: employee);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+      },
+    );
+  }
+}
+
+class _EmployeeCard extends StatelessWidget {
+  final Employee employee;
+
+  const _EmployeeCard({required this.employee});
+
+  Color _getStatusColor() {
+    switch (employee.status) {
+      case EmployeeStatus.clockedIn:
+        return AppColors.statusGreen;
+      case EmployeeStatus.onBreak:
+        return AppColors.statusOrange;
+      case EmployeeStatus.offDuty:
+        return AppColors.statusGrey;
+    }
+  }
+
+  String _getStatusText() {
+    switch (employee.status) {
+      case EmployeeStatus.clockedIn:
+        return 'Clocked in: ${employee.clockInTime ?? ""}';
+      case EmployeeStatus.onBreak:
+        return 'On Break • ${employee.breakTimeRemaining ?? ""}';
+      case EmployeeStatus.offDuty:
+        return 'Off Duty';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: () {
+         Navigator.pushNamed(context, Routes.employeeProfile,arguments: employee);
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Row(
+          children: [
+            // Profile Picture with Status Indicator
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundImage: employee.imageUrl != null
+                      ? NetworkImage(employee.imageUrl!)
+                      : null,
+                  child: employee.imageUrl == null
+                      ? Icon(Icons.person, size: 28)
+                      : null,
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 16,
+                    height: 16,
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(width: 16),
+            // Employee Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    employee.name,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    employee.role,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    _getStatusText(),
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Color(0xff9CA3AF),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Navigation Arrow
+            Icon(
+              Icons.chevron_right,
+              color: Theme.of(context).dividerColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+

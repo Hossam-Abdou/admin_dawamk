@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "1024426014345",
+    "project_id": "new-project-9ccad",
+    "storage_bucket": "new-project-9ccad.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024426014345:android:164a946f59692fb4833858",
+        "android_client_info": {
+          "package_name": "com.admin.attendance.admin_attendance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxGjEQSYV6aOWJHYQ-fjnB331B5r7jwwU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024426014345:android:24b8c25eb946c193833858",
+        "android_client_info": {
+          "package_name": "com.attendence.attendence"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxGjEQSYV6aOWJHYQ-fjnB331B5r7jwwU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1024426014345:android:b7fde70dd065e40e833858",
+        "android_client_info": {
+          "package_name": "com.example.untitled"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxGjEQSYV6aOWJHYQ-fjnB331B5r7jwwU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,255 @@
+import 'package:admin_attendance/view_model/admin_cubit.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
+
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+import '../../../../config/routes_manager/routes.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/admin/glass_attendance_card.dart';
+import '../widgets/new.dart';
+import '../widgets/new_admin_home_att.dart';
+import '../widgets/attendance_rate_card.dart';
+
+class AdminHomeScreen extends StatefulWidget {
+  const AdminHomeScreen({super.key});
+
+  @override
+  State<AdminHomeScreen> createState() => _AdminHomeScreenState();
+}
+
+class _AdminHomeScreenState extends State<AdminHomeScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AdminCubit.get(context).calculateDailySummary();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<AdminCubit, AdminState>(
+  listener: (context, state) {
+    // TODO: implement listener
+  },
+  builder: (context, state) {
+    var cubit = AdminCubit.get(context);
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ListTile(
+                contentPadding: const EdgeInsets.all(1),
+                trailing: const CircleAvatar(
+                  radius: 30,
+                  backgroundImage: NetworkImage(
+                    'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+                  ),
+                ),
+                title: Text('Good Morning,', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                subtitle: Text('Mr. Hossam Abdou', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+
+              ),
+              SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Today\'s Attendance',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).brightness == Brightness.dark 
+                            ? Colors.white.withOpacity(0.05) 
+                            : Colors.grey.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        DateFormat('EEE, d MMM yyyy').format(DateTime.now()),
+                        style: GoogleFonts.poppins(
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Center(
+              //   child: Wrap(
+              //     spacing: 20,
+              //     runSpacing: 16,
+              //     children: [
+              //       AttCardV2(
+              //         title: cubit.totalEmployees.toString(),
+              //         subTitle: 'Total',
+              //         cardColor: AppColors.accentColor,
+              //         icon: FontAwesomeIcons.users,
+              //       ),
+              //       AttCardV2(
+              //         title: cubit.todayOnTimeCount.toString(),
+              //         subTitle: 'On Time',
+              //         cardColor: AppColors.statusGreen,
+              //         icon: FontAwesomeIcons.check,
+              //       ),
+              //       AttCardV2(
+              //         title: cubit.todayLateCount.toString(),
+              //         subTitle: 'Late',
+              //         cardColor: AppColors.statusOrange,
+              //         icon: FontAwesomeIcons.clock,
+              //       ),
+              //       AttCardV2(
+              //         title: cubit.todayAbsentCount.toString(),
+              //         subTitle: 'Absent',
+              //         cardColor: AppColors.unSelectedText,
+              //         icon: FontAwesomeIcons.userSlash,
+              //       ),
+              //     ],
+              //   ),
+              // ),
+
+GridView.count(
+  crossAxisCount: 2,
+  crossAxisSpacing: 10,
+  mainAxisSpacing: 10,
+  shrinkWrap: true,
+  childAspectRatio: 1.6,
+  physics: NeverScrollableScrollPhysics(),
+  children: [
+    AttCardV3(title: cubit.totalEmployees.toString(),   subTitle: 'Total',   cardColor: AppColors.primaryColor,   icon: FontAwesomeIcons.users),
+    AttCardV3(title: cubit.onTimeCount.toString(),  subTitle: 'On Time', cardColor: AppColors.statusGreen,  icon: FontAwesomeIcons.check),
+    AttCardV3(title: cubit.lateCount.toString(),    subTitle: 'Late',    cardColor: AppColors.statusOrange,  icon: FontAwesomeIcons.clock),
+    AttCardV3(title: cubit.absentCount.toString(),  subTitle: 'Absent',  cardColor: AppColors.statusRed,    icon: FontAwesomeIcons.xmark),
+  ],
+),
+              SizedBox(height: 16),
+              AttendanceRateCard(
+                presentCount: cubit.todayOnTimeCount + cubit.todayLateCount,
+                totalEmployees: cubit.totalEmployees,
+              ),
+
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //
+              //   children: [
+              //     CustomTodayPulse(title: 'on Time', subTitle: '42'),
+              //     CustomTodayPulse(title: 'Late', subTitle: '3'),
+              //     CustomTodayPulse(title: 'Absent', subTitle: '42'),
+              //   ],
+              // ),
+              // SizedBox(height: 32),
+              SizedBox(height: 32),
+              // PendingRequestsBox(),
+              // SizedBox(height: 16),
+              // Container(
+              //   padding: const EdgeInsets.only(top: 3),
+              //
+              //   decoration: BoxDecoration(
+              //     color: AppColors.primaryColor.withOpacity(0.4),
+              //     borderRadius: BorderRadius.circular(18),
+              //   ),
+              //   child: Container(
+              //     padding: EdgeInsetsGeometry.all(8),
+              //     decoration: BoxDecoration(
+              //       borderRadius: BorderRadius.circular(18),
+              //       color: AppColors.whiteColor,
+              //     ),
+              //     child: ListTile(
+              //       title: Text('Pending Requests'),
+              //       subtitle: Text('Leave, complaints & feedback'),
+              //       trailing: CircleAvatar(
+              //         backgroundColor: AppColors.primaryColor.withOpacity(0.11),
+              //         child: Text(
+              //           '8',
+              //           style: GoogleFonts.poppins(color: AppColors.primaryColor),
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              // SizedBox(height: 16),
+              Text(
+                'Quick Actions',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              SizedBox(height: 16),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GlassAttendanceCard(
+                    title: 'Attendance',
+                    icon: Icons.edit_calendar_rounded,
+                    cardColor: Theme.of(context).colorScheme.primary,
+                    onTap: () =>
+                        Navigator.pushNamed(context, Routes.attendance),
+                  ),
+
+                  GlassAttendanceCard(
+                    title: 'Employees',
+                    icon: Icons.people_outline,
+                    cardColor: Theme.of(context).colorScheme.primary,
+                    onTap: () => Navigator.pushNamed(context, Routes.employees),
+                  ),
+
+                ],
+              ),
+              SizedBox(height: 16,),
+              GlassAttendanceCard(
+                title: 'Reports',
+                icon: Icons.add_chart_sharp,
+                cardColor: Theme.of(context).colorScheme.primary,
+                onTap: () => Navigator.pushNamed(context, Routes.reports),
+              ),
+              // Lottie.asset('assets/images/dawamak_logo.json',height: 100,),
+              SizedBox(height: 16,),
+              GlassAttendanceCard(
+                title: 'Settings',
+                icon: Icons.settings,
+                cardColor: Theme.of(context).colorScheme.secondary,
+                onTap: () =>
+                    Navigator.pushNamed(context, Routes.settings),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  },
+);
+  }
+}
+
+

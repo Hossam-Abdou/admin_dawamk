@@ -1,0 +1,26 @@
+class Routes {
+  static const String another = "/another";
+
+
+  // static const String homeRoute = "/home";
+  // static const String signInRoute = "/signIn";
+  // static const String signUpRoute = "/signUp";
+  // static const String profile = "/profile";
+  // static const String bottomNavRoute = "/bottomNav";
+  // static const String leaveScreen = "/leaveScreen";
+  // static const String feedbackScreen = "/feedbackScreen";
+
+
+
+  static const String adminHome = "/adminHome";
+  static const String attendance = "/attendance";
+  static const String employees = "/employees";
+  static const String settings = "/settings";
+  static const String adminNotificationsScreen = "/adminNotificationsScreen";
+  static const String requestScreen = "/requestScreen";
+  static const String employeeProfile = "/employeeProfile";
+  static const String attendanceHistoryScreen = "/attendanceHistoryScreen";
+  static const String addEmployee = "/addEmployee";
+  static const String reports = "/reports";
+
+}

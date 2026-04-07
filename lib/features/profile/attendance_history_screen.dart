@@ -1,0 +1,63 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../models/employee_model.dart';
+import '../../view_model/admin_cubit.dart';
+import '../home/widgets/attendance_item.dart';
+
+class AttendanceHistoryScreen extends StatefulWidget {
+  final Employee employee;
+
+  const AttendanceHistoryScreen({super.key, required this.employee});
+
+  @override
+  State<AttendanceHistoryScreen> createState() => _AttendanceHistoryScreenState();
+}
+
+class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AdminCubit.get(context).getUserAttendanceHistory(widget.employee);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${widget.employee.name}\'s History', style: const TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: BlocConsumer<AdminCubit, AdminState>(
+        listener: (context, state) {},
+        builder: (context, state) {
+          var cubit = AdminCubit.get(context);
+
+          if (state is GetUserHistoryLoadingState) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (cubit.userHistoryRecords.isEmpty && state is GetUserHistorySuccessState) {
+            return Center(child: Text("No attendance history available for:\n${widget.employee.id}", textAlign: TextAlign.center));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(20),
+            itemCount: cubit.userHistoryRecords.length,
+            itemBuilder: (context, index) {
+              // Note: We use AdminAttendanceItem which automatically navigates to EmployeeProfile!
+              // Wait! If they tap on it, it will navigate to EmployeeProfile AGAIN!
+              // Let's wrap it in IgnorePointer, or create an AttendanceHistoryItem.
+              // Let's just use IgnorePointer for now to prevent recursive navigation.
+              return IgnorePointer(
+                child: AdminAttendanceItem(record: cubit.userHistoryRecords[index]),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}

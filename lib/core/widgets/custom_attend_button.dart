@@ -1,0 +1,45 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class CustomAttendButton extends StatelessWidget {
+  final Function()? onPressed;
+  final List<Color> colors;
+  final String label;
+  final bool isEnabled;
+
+
+  CustomAttendButton({
+    super.key,
+    required this.onPressed,
+    required this.colors,
+    required this.label,
+    this.isEnabled = true,
+
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: isEnabled?onPressed:null,
+      child: Container(
+        width: double.infinity,
+        margin: EdgeInsets.symmetric(horizontal: 32),
+        padding: EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: isEnabled?colors: colors.map((color) => color.withValues(alpha: 0.5)).toList(),),
+          borderRadius: BorderRadius.all(Radius.circular(14)),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

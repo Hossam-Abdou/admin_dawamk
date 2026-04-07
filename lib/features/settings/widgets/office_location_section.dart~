@@ -1,0 +1,95 @@
+import 'package:admin_attendance/core/theme/app_theme.dart';
+import 'package:admin_attendance/features/settings/widgets/office_location_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import '../../../models/settings_model.dart';
+
+// import 'export_custom_widgets.dart';
+
+class OfficeLocationSection extends StatelessWidget {
+  final SettingsModel settingsModel;
+  final Function(LatLng) onLocationChanged;
+
+  OfficeLocationSection({
+    required this.settingsModel,
+    required this.onLocationChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    late LatLng latLng;
+
+
+    latLng = LatLng(settingsModel.latitude, settingsModel.longitude);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Office Location',
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textColor,
+          ),
+        ),
+        SizedBox(height: 16),
+
+        ClipRRect(
+          borderRadius: BorderRadiusGeometry.circular(16),
+          child: Container(
+
+            height: MediaQuery.sizeOf(context).height * 0.5,
+            decoration: BoxDecoration(
+              // image: DecorationImage(
+              //   fit: BoxFit.cover,
+              //   image: NetworkImage('https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'),
+              // ),
+            ),
+            child: GoogleMap(
+              zoomControlsEnabled: false,
+              zoomGesturesEnabled: true,
+              key: ValueKey('${settingsModel.latitude}_${settingsModel.longitude}'),
+              initialCameraPosition: CameraPosition(target: LatLng(settingsModel.latitude, settingsModel.longitude), zoom: 16),
+              mapType: MapType.normal,
+              markers: {
+                Marker(
+                  markerId: MarkerId('office'),
+                  position: latLng,
+                  infoWindow: InfoWindow(
+                    title: 'Office Location',
+                  ),
+                ),
+              },
+              onTap: (location)async{
+
+                final LatLng? result = await showDialog(
+                  context: context,
+                  builder: (context) => Dialog(
+                    child: SizedBox(
+                      width: MediaQuery.sizeOf(context).width * 0.8,
+                      child: OfficeLocationPicker(
+                        settingsModel: settingsModel,
+                        latLng: latLng,
+                      ),
+                    ),
+                  ),
+                );
+
+                if (result != null) {
+                  onLocationChanged(result);
+                }
+
+              },
+
+            ),
+          ),
+        ),
+
+
+      ],
+    );
+  }
+}

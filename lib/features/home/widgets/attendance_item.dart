@@ -1,0 +1,133 @@
+import 'package:flutter/material.dart';
+import '../../../../config/routes_manager/routes.dart';
+import '../../../models/attendance_record.dart';
+
+class AdminAttendanceItem extends StatelessWidget {
+  final AttendanceRecord record;
+
+  const AdminAttendanceItem({super.key, required this.record});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell( 
+      onTap: () => Navigator.pushNamed(context, Routes.employeeProfile,arguments: record.employee),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundImage: record.imageUrl != null
+                ? NetworkImage(record.imageUrl!)
+                : null,
+              child: record.imageUrl == null
+                ? const Icon(Icons.person)
+                : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    record.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    record.role,
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  record.time != null ? "In: ${record.time}" : "--:--",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+                if (record.checkOutTime != null)
+                  Text(
+                    "Out: ${record.checkOutTime}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
+                  ),
+                const SizedBox(height: 4),
+                _buildStatusBadge(record.status),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge(AttendanceStatus status) {
+    Color color;
+    String label;
+
+    switch (status) {
+      case AttendanceStatus.onTime:
+        color = const Color(0xFF4CAF50);
+        label = "On Time";
+        break;
+      case AttendanceStatus.late:
+        color = const Color(0xFFFF9800);
+        label = "Late";
+        break;
+      case AttendanceStatus.breakTime:
+        color = const Color(0xFF9E9E9E);
+        label = "Break";
+        break;
+      case AttendanceStatus.absent:
+        color = const Color(0xFFF44336);
+        label = "Absent";
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+}
+
+
+
+

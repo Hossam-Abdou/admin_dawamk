@@ -1,0 +1,54 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+
+class CustomDateField extends StatelessWidget {
+  final String label;
+  final String hint;
+  final TextEditingController controller;
+
+  const CustomDateField({super.key, required this.label, required this.hint,required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+
+    Future<void> selectDate(BuildContext context) async {
+      DateTime? datePicked = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100),
+      );
+      if (datePicked != null) {
+        // MMM = Jan, d = 4, yyyy = 2026
+        controller.text = DateFormat('MMM d, yyyy').format(datePicked);
+      }
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: GoogleFonts.poppins(fontSize: 14)),
+        const SizedBox(height: 8),
+        TextField(
+          controller: controller,
+          readOnly: true, // يمنع ظهور الكيبورد العادي
+          onTap: () => selectDate(context), // يفتح الـ Date Picker
+          decoration: InputDecoration(
+            hintText: hint,
+            suffixIcon: const Icon(Icons.calendar_month), // أيقونة النتيجة
+            filled: true,
+            fillColor: const Color(0xFFF9FAFB),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[200]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF9B51E0)),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
