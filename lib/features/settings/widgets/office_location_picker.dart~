@@ -30,7 +30,6 @@ class _OfficePolygonPickerState extends State<OfficePolygonPicker> {
     _points = List<LatLng>.from(widget.initialPolygon);
 
     // Automatically fetch location and center map when the picker opens
-
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   _initLocation();
     // });

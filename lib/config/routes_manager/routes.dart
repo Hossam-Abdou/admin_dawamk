@@ -1,5 +1,6 @@
 class Routes {
   static const String another = "/another";
+  static const String splashRoute = "/";
 
 
   // static const String homeRoute = "/home";

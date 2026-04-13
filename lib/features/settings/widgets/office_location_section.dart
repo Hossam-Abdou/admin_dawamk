@@ -10,12 +10,19 @@ class OfficeLocationSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var cubit = AdminCubit.get(context);
-    double lat = cubit.officeLatitude;
-    double lng = cubit.officeLongitude;
-    double radius = cubit.officeRadius;
-    
-    LatLng latLng = LatLng(lat, lng);
+    final cubit = AdminCubit.get(context);
+    final List<LatLng> polygon = cubit.officePolygon;
+
+    // Compute centroid for the initial camera position.
+    // Falls back to a default coordinate when no polygon exists yet.
+    final LatLng center = polygon.isNotEmpty
+        ? LatLng(
+      polygon.map((p) => p.latitude).reduce((a, b) => a + b) /
+          polygon.length,
+      polygon.map((p) => p.longitude).reduce((a, b) => a + b) /
+          polygon.length,
+    )
+        : const LatLng(24.7136, 46.6753);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,60 +41,77 @@ class OfficeLocationSection extends StatelessWidget {
           child: SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.5,
             child: GoogleMap(
-              zoomControlsEnabled: false,
+              // Rebuild the map whenever the polygon changes.
+              key: ValueKey(polygon.length),
+              zoomControlsEnabled: true,
               zoomGesturesEnabled: true,
-              key: ValueKey('${lat}_$lng'),
-              initialCameraPosition: CameraPosition(
-                target: latLng,
-                zoom: 16,
-              ),
+              initialCameraPosition:
+              CameraPosition(target: center, zoom: 17),
               mapType: MapType.normal,
-              circles: {
-                Circle(
-                  circleId: const CircleId('office_radius'),
-                  center: latLng,
-                  radius: radius,
-                  fillColor: AppColors.primaryColor.withOpacity(0.2),
+
+              // Draw the polygon only when we have at least 3 points.
+              polygons: polygon.length >= 3
+                  ? {
+                Polygon(
+                  polygonId: const PolygonId('office_polygon'),
+                  points: polygon,
+                  fillColor:
+                  AppColors.primaryColor.withOpacity(0.2),
                   strokeColor: AppColors.primaryColor,
                   strokeWidth: 2,
                 ),
-              },
-              markers: {
-                Marker(
-                  markerId: const MarkerId('office'),
-                  position: latLng,
-                  infoWindow: const InfoWindow(
-                    title: 'Office Location',
-                  ),
-                ),
-              },
-              onTap: (location) async {
-                final Map<String, dynamic>? result = await showDialog<Map<String, dynamic>>(
+              }
+                  : {},
+
+              // Show a small marker at each vertex.
+              // markers: polygon
+              //     .asMap()
+              //     .entries
+              //     .map(
+              //       (e) => Marker(
+              //     markerId: MarkerId('vertex_${e.key}'),
+              //     position: e.value,
+              //     icon: BitmapDescriptor.defaultMarkerWithHue(
+              //         BitmapDescriptor.hueAzure),
+              //   ),
+              // )
+              //     .toSet(),
+
+              // Tap the preview map to open the polygon editor.
+              onTap: (_) async {
+                final List<LatLng>? result =
+                await showDialog<List<LatLng>>(
                   context: context,
                   builder: (context) => Dialog(
                     child: SizedBox(
-                      width: MediaQuery.sizeOf(context).width * 0.8,
-                      child: OfficeLocationPicker(
-                        initialLatitude: lat,
-                        initialLongitude: lng,
-                        initialRadius: radius,
+                      width: MediaQuery.sizeOf(context).width * 0.9,
+                      height: MediaQuery.sizeOf(context).height * 0.8,
+                      child: OfficePolygonPicker(
+                        initialPolygon: polygon,
                       ),
                     ),
                   ),
                 );
 
                 if (result != null) {
-                  double newLat = result['latitude'];
-                  double newLng = result['longitude'];
-                  double newRadius = result['radius'];
-                  cubit.updateOfficeLocation(newLat, newLng, newRadius);
+                  cubit.updateOfficePolygon(result);
                 }
               },
             ),
           ),
         ),
+
+        // Hint when no polygon has been drawn yet.
+        if (polygon.length < 3)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              'Tap the map to draw the office boundary (minimum 3 points).',
+              style: GoogleFonts.poppins(
+                  fontSize: 12, color: Colors.grey),
+            ),
+          ),
       ],
     );
   }
 }
-

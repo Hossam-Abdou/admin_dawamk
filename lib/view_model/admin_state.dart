@@ -9,6 +9,10 @@ class AdminInitial extends AdminState {}
 class AdminLoading extends AdminState {}
 class ChangeFilterState extends AdminState {}
 
+
+class PolygonUpdatedSuccessfully extends AdminState {}
+
+
 class RegisterLoading extends AdminState {}
 class RegisterSuccess extends AdminState {}
 class RegisterError extends AdminState {

@@ -9,6 +9,7 @@ import 'package:admin_attendance/features/profile/profile_screen.dart';
 import 'package:admin_attendance/features/profile/attendance_history_screen.dart';
 import 'package:admin_attendance/features/reports/view/reports_screen.dart';
 import 'package:admin_attendance/features/settings/view/settings_screen.dart';
+import 'package:admin_attendance/features/splash/splash_screen.dart';
 import 'package:admin_attendance/models/employee_model.dart';
 
 import 'package:flutter/material.dart';
@@ -24,6 +25,8 @@ class RouteGenerator {
 
       case Routes.adminHome:
         return _buildPageRoute(const AdminBottomNavBarScreen());
+        case Routes.splashRoute:
+        return _buildPageRoute(const SplashScreen());
 
       case Routes.attendance:
         return _buildPageRoute(const AdminAttendanceScreen());
