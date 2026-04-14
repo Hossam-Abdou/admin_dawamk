@@ -13,6 +13,8 @@ import 'package:admin_attendance/features/splash/splash_screen.dart';
 import 'package:admin_attendance/models/employee_model.dart';
 
 import 'package:flutter/material.dart';
+
+import '../../features/auth/view/aa.dart';
 import '../../features/auth/view/login_screen.dart';
 
 
@@ -29,6 +31,9 @@ class RouteGenerator {
 
       case Routes.login:
         return _buildPageRoute(const LoginScreen());
+
+      case Routes.authWrapper:
+        return _buildPageRoute(const AuthWrapper());
 
         case Routes.splashRoute:
         return _buildPageRoute(const SplashScreen());

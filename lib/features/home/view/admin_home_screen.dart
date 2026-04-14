@@ -1,4 +1,6 @@
 import 'package:admin_attendance/view_model/admin_cubit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -55,7 +57,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   ),
                 ),
                 title: Text('Good Morning,', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                subtitle: Text('Mr. Hossam Abdou', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                subtitle: Text('Mr.${FirebaseAuth.instance.currentUser!.displayName}', style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
 
               ),
               SizedBox(height: 16),

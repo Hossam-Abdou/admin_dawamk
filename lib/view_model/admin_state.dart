@@ -5,6 +5,26 @@ abstract class AdminState {}
 
 class AdminInitial extends AdminState {}
 
+// ── Auth States ──────────────────────────────────────────────────────────────
+
+class LoginLoading extends AdminState {}
+
+class LoginSuccess extends AdminState {}
+
+class LoginError extends AdminState {
+  final String error;
+  LoginError(this.error);
+}
+
+class LogoutSuccess extends AdminState {}
+
+class AuthChecking extends AdminState {}
+
+class AuthAuthenticated extends AdminState {}
+
+class AuthUnauthenticated extends AdminState {}
+
+
 
 class AdminLoading extends AdminState {}
 class ChangeFilterState extends AdminState {}

@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../config/routes_manager/routes.dart';
 import '../../core/theme/app_theme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../view_model/admin_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -33,10 +35,15 @@ class _SplashScreenState extends State<SplashScreen>
 
   // Particle controllers
   late final AnimationController _particleController;
+  bool _isAnimationComplete = false;
+  AdminState? _finalAuthState;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AdminCubit.get(context).checkAuthStatus();
+    });
 
     // ── Logo ──────────────────────────────────────────────────────
     _logoController = AnimationController(
@@ -106,8 +113,20 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Navigate after splash duration
     await Future.delayed(const Duration(milliseconds: 1800));
-    if (mounted) {
+    if (!mounted) return;
+    setState(() {
+      _isAnimationComplete = true;
+    });
+    _checkAndNavigate();
+  }
+
+  void _checkAndNavigate() {
+    if (!_isAnimationComplete || _finalAuthState == null) return;
+
+    if (_finalAuthState is AuthAuthenticated) {
       Navigator.pushReplacementNamed(context, Routes.adminHome);
+    } else if (_finalAuthState is AuthUnauthenticated || _finalAuthState is LogoutSuccess) {
+      Navigator.pushReplacementNamed(context, Routes.login);
     }
   }
 
@@ -125,8 +144,15 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
 
-    return Scaffold(
-      body: Stack(
+    return BlocListener<AdminCubit, AdminState>(
+      listener: (context, state) {
+        if (state is AuthAuthenticated || state is AuthUnauthenticated || state is LogoutSuccess) {
+          _finalAuthState = state;
+        }
+        _checkAndNavigate();
+      },
+      child: Scaffold(
+        body: Stack(
         children: [
           // ── Gradient background ───────────────────────────────────
           Container(
@@ -333,8 +359,9 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
 
 // ── Loading dots widget ──────────────────────────────────────────────────────

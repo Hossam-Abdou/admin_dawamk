@@ -23,5 +23,6 @@ class Routes {
   static const String attendanceHistoryScreen = "/attendanceHistoryScreen";
   static const String addEmployee = "/addEmployee";
   static const String reports = "/reports";
+  static const String login = "/login";
 
 }
